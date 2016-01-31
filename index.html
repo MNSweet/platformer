@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+		<title>My fancy game</title>
+</head>
+<body style="padding:10px 0 0">
+
+<canvas id="canvas" style="border:1px solid #000; display:block; margin:auto;"></canvas>
+<script type="text/javascript">var debug = true;</script>
+<script type="text/javascript" src="js/entities.js"></script>
+<script type="text/javascript" src="js/structure.js"></script>
+<script>
+(function() {
+	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+	window.requestAnimationFrame = requestAnimationFrame;
+})();
+var canvas = document.getElementById("canvas"),
+	ctx = canvas.getContext("2d"),
+	width = 1000,
+	height = 400,
+	/*player = {
+		x : width/2 - 2.5,
+		y : height - 5,
+		width : 5,
+		height : 5,
+		speed: 4,
+		velX: 0,
+		velY: 0,
+		jumping: false,
+		grounded: false
+	},*/
+	keys = [],
+	gravity = 0.3,
+	friction = 0.8;
+
+var player = Player();
+Maps = function(id,imgSrc,varWidth,varHeight){
+	var	self = {
+		id:id,
+		image: new Image(),
+		width:varWidth,
+		height:varHeight
+	};
+	
+	self.image.src = imgSrc;
+	self.image.height = self.height;
+	self.image.width = self.width;
+
+	self.draw = function() {
+		ctx.drawImage(
+			self.image,
+			0,
+			0,
+			width,
+			height,
+			0,
+			0,
+			/*width/2 - player.x,
+			height/2 - player.y,*/
+			width,
+			height
+		)
+
+	}
+
+	self.drawPattern = function() {
+		var ptrn = ctx.createPattern(self.image, 'repeat'); // Create a pattern with this image, and set it to "repeat".
+	    ctx.fillStyle = ptrn;
+	    ctx.fillRect(0, 0, canvas.width, canvas.height); // context.fillRect(x, y, width, height);
+	}
+
+	return self;
+}
+var currentMap = Maps('feild','img/map.jpg',800,500);
+
+var boxes = [];
+ 
+// dimensions
+/*boxes.push(Structure(0,0,10,height));
+boxes.push(Structure(0,height - 2,width,50));
+boxes.push(Structure(width - 10,0,50,height));*/
+boxes.push(Structure(width/6,height-10,width/1.5,10));
+//boxes.push(Structure(width/2+50,height-100,width/4,10));
+boxes.push(Structure(100,height-100,width/4,10));
+boxes.push(Structure(200,height-200,width/4,10));
+boxes.push(Structure(300,height-300,width/4,10));
+
+
+canvas.width = width;
+canvas.height = height;
+
+
+
+document.body.addEventListener("keydown", function(e) {
+	keys[e.keyCode] = true;
+});
+ 
+document.body.addEventListener("keyup", function(e) {
+	keys[e.keyCode] = false;
+});
+
+function update(){
+
+	/*console.log('');
+	console.log('');
+	console.log('');
+	console.log('----------');
+	*/
+	//reset screen
+	ctx.clearRect(0,0,width,height);
+	//currentMap.drawPattern();
+
+
+	player.grounded = false;
+	//render obstacles
+
+	for (var i = 0; i < boxes.length; i++) {
+		boxes[i].update();
+	};
+
+
+
+	player.update();
+
+	// draw our player
+	//ctx.save();
+	//ctx.fillStyle = "red";	 
+	//ctx.fillRect(player.x, player.y, player.width, player.height);
+	//ctx.restore();
+	// run through the loop again
+	requestAnimationFrame(update);
+};
+
+
+window.addEventListener("load", function(){
+	update();
+});
+	
+</script>
+</body>
+</html>
