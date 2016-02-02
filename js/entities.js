@@ -138,7 +138,7 @@ AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
 			self.img.width/4, //crop width
 			self.img.height/4,//crop height
 			renderX, //render x
-			renderY+1,//render y
+			renderY,//render y
 			self.width, //render width
 			self.height //render height
 		)
@@ -149,7 +149,17 @@ AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
  
 Player = function(){
 	// type,id,x,y,width,height,img,hp,atkSpd
-	var self = AdvEntity('player','users',width/2-16,height - 58,32,48,imgLib.player,10,4);
+	var self = AdvEntity(
+			'player',
+			'users',
+			width/2,
+			height-(imgLib.player.height/4)-10,
+			imgLib.player.width/4,
+			imgLib.player.height/4,
+			imgLib.player,
+			10,
+			4
+		);
 		self.moveSpd =  4;
 		self.velX = 0;
 		self.velY = 0;
