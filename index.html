@@ -60,23 +60,10 @@ Maps = function(id,imgSrc,varWidth,varHeight){
 }
 var currentMap = Maps('feild','img/map.jpg',800,500);
 
-var boxes = [];
- 
-// dimensions
-/*boxes.push(Structure(0,0,10,height));
-boxes.push(Structure(0,height - 2,width,50));
-boxes.push(Structure(width - 10,0,50,height));*/
-boxes.push(Structure(width/6,height-10,width/1.5,10));
-//boxes.push(Structure(width/2+50,height-100,width/4,10));
-boxes.push(Structure(100,height-100,width/4,10));
-boxes.push(Structure(200,height-200,width/4,10));
-boxes.push(Structure(300,height-300,width/4,10));
-
+var structures = [];
 
 canvas.width = width;
 canvas.height = height;
-
-
 
 document.body.addEventListener("keydown", function(e) {
 	keys[e.keyCode] = true;
@@ -94,8 +81,8 @@ function update(){
 	player.grounded = false;
 	//render obstacles
 
-	for (var i = 0; i < boxes.length; i++) {
-		boxes[i].update();
+	for (var i = 0; i < structures.length; i++) {
+		structures[i].update();
 	};
 
 	player.update();
@@ -106,6 +93,12 @@ function update(){
 
 window.addEventListener("load", function(){
 	player = Player();
+	imgLib.platform		= new Image();
+	imgLib.platform.src	= "img/platform.png";
+	structures.push(Structure(width/6,height-10,width/1.5,15,imgLib.platform));
+	structures.push(Structure(100,height-100,width/4,15,imgLib.platform));
+	structures.push(Structure(200,height-200,width/4,15,imgLib.platform));
+	structures.push(Structure(300,height-300,width/4,15,imgLib.platform));
 	update();
 });
 	

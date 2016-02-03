@@ -1,28 +1,39 @@
 if(debug) console.log('Loaded: js/structure');
 
-Structure = function (x,y,width,height,movX,movY) {
+Structure = function (x,y,width,height,img,movX,movY) {
 	var self = {
 		x: x,
 		y: y,
 		width: width,
 		height: height,
+		img: img,
 		movX: movX,
 		movY: movY
 	}
 
 	self.update = function(){
 		self.updatePosition();
-		self.draw();
+		self.drawPattern();
 		self.testCollision(player);
 	}
 
 	self.updatePosition = function() {};
 
-	self.draw = function(){
+	self.draw = function() {
+		ctx.drawImage(
+			self.image,
+			self.x,
+			self.y,
+			self.width,
+			self.height
+		)
+	}
+
+	self.drawPattern = function() {
 		ctx.save();
-		ctx.fillStyle = "black";
-		ctx.beginPath(); 
-		ctx.fillRect(self.x, self.y, self.width, self.height);
+		ctx.translate(self.x, self.y);
+		ctx.fillStyle = ctx.createPattern(self.img, 'repeat'); // Create a pattern with this image, and set it to "repeat".
+	    ctx.fillRect(0, 0, self.width, self.height); // context.fillRect(x, y, width, height);
 		ctx.restore();
 	}
 
@@ -33,8 +44,7 @@ Structure = function (x,y,width,height,movX,movY) {
 			vY = (entity.y + (entity.height / 2)) - (self.y + (self.height / 2)),
 			// add the half widths and half heights of the objects
 			halfWidths = (entity.width / 2) + (self.width / 2),
-			halfHeights = (entity.height / 2) + (self.height / 2),
-			colDir = null;
+			halfHeights = (entity.height / 2) + (self.height / 2);
  
 		// if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
 		if (Math.abs(vX) < halfWidths && Math.abs(vY) < halfHeights) {// figures out on which side we are colliding (top, bottom, left, or right)				 
@@ -59,7 +69,6 @@ Structure = function (x,y,width,height,movX,movY) {
 				}
 			}
 		}
-		return colDir;
 	}
 
 	return self;
