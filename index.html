@@ -21,7 +21,8 @@ var canvas = document.getElementById("canvas"),
 	player = {},
 	keys = [],
 	gravity = 0.3,
-	friction = 0.8;
+	friction = 0.8,
+	structures = [];
 
 Maps = function(id,imgSrc,varWidth,varHeight){
 	var	self = {
@@ -58,9 +59,12 @@ Maps = function(id,imgSrc,varWidth,varHeight){
 
 	return self;
 }
+imgLib.ground		= new Image();
+imgLib.ground.src	= "img/ground.png";
+imgLib.platform		= new Image();
+imgLib.platform.src	= "img/platform.png";
 var currentMap = Maps('feild','img/map.jpg',800,500);
 
-var structures = [];
 
 canvas.width = width;
 canvas.height = height;
@@ -93,12 +97,11 @@ function update(){
 
 window.addEventListener("load", function(){
 	player = Player();
-	imgLib.platform		= new Image();
-	imgLib.platform.src	= "img/platform.png";
-	structures.push(Structure(width/6,height-10,width/1.5,15,imgLib.platform));
-	structures.push(Structure(100,height-100,width/4,15,imgLib.platform));
-	structures.push(Structure(200,height-200,width/4,15,imgLib.platform));
-	structures.push(Structure(300,height-300,width/4,15,imgLib.platform));
+	structures.push(Ground(width/6,height-10,width/1.5,15));
+	//structures.push(Ground(100,height-100,width/4,15));
+	structures.push(Ground(200,height-200,width/4,15));
+	structures.push(Ground(300,height-300,width/4,15));
+	structures.push(Platform(100,height-100,width/4,15,10,0,.4));
 	update();
 });
 	
