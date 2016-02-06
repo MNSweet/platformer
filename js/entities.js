@@ -19,31 +19,72 @@ Entity = function(type,id,x,y,width,height,img){
 		height:height,
 		img:img
 	};
+
 	self.update = function(){
 		self.updatePosition();
 		self.draw();
 	}
+
 	self.updatePosition = function(){};
-	self.getDistance = function (entity2){  //return distance (number)
-		var vx = self.x - entity2.x;
-		var vy = self.y - entity2.y;
-		return Math.sqrt(vx*vx+vy*vy);
+
+	self.testCollision = {
+		entity: function(entity2){ //return if colliding (true/false)
+			var rect1 = {
+				x:self.x-self.width/2,
+				y:self.y-self.height/2,
+				width:self.width,
+				height:self.height
+			};
+			var rect2 = {
+				x:entity2.x-entity2.width/2,
+				y:entity2.y-entity2.height/2,
+				width:entity2.width,
+				height:entity2.height
+			};
+			return rect1.x <= rect2.x + rect2.width
+				&& rect2.x <= rect1.x + rect1.width
+				&& rect1.y <= rect2.y + rect2.height
+				&& rect2.y <= rect1.y + rect1.height;
+		},
+		structure: function(structure){
+			// get the vectors to check against
+			var vX = (self.x + (self.width / 2)) - (structure.x + (structure.width / 2)),
+				vY = (self.y + (self.height / 2)) - (structure.y + (structure.height / 2)),
+				// add the half widths and half heights of the objects
+				halfWidths = (self.width / 2) + (structure.width / 2),
+				halfHeights = (self.height / 2) + (structure.height / 2);
+	 
+			// if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+			if (Math.abs(vX) < halfWidths && Math.abs(vY) < halfHeights) {// figures out on which side we are colliding (top, bottom, left, or right)				 
+				var oX = halfWidths - Math.abs(vX),
+					oY = halfHeights - Math.abs(vY);
+				if (oX >= oY) {
+					if (vY > 0) { //entity on bottom of structure
+						self.y += oY;
+						self.velY *= -1;
+					} else {//entity on top of structure
+						self.y -= oY;
+						self.grounded = true;
+						self.jumping = false;
+						if (structure.checkX.dir && structure.movX > 0) {
+							self.x = self.x + structure.movSpeed;
+						} else if(structure.movX > 0) {
+							self.x = self.x - structure.movSpeed;
+						};
+					};
+				} else {
+					self.velX = 0;
+					self.jumping = false;
+					if (vX > 0) {//entity to the left of structure
+						self.x += oX;
+					} else {//entity to the right of structure
+						self.x -= oX;
+					};
+				};
+			};
+		}
 	};
-	self.testCollision = function(entity2){ //return if colliding (true/false)
-		var rect1 = {
-			x:self.x-self.width/2,
-			y:self.y-self.height/2,
-			width:self.width,
-			height:self.height,
-		}
-		var rect2 = {
-			x:entity2.x-entity2.width/2,
-			y:entity2.y-entity2.height/2,
-			width:entity2.width,
-			height:entity2.height,
-		}
-		return testCollisionRectRect(rect1,rect2);
-	}
+
 	self.draw = function(){
 		ctx.save();
 
@@ -73,7 +114,7 @@ Entity = function(type,id,x,y,width,height,img){
 			self.height //render height
 		)
 		ctx.restore();
-	}
+	};
    
 	return self;
 };
@@ -100,7 +141,6 @@ AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
     self.update = function(){
     	parent.update();
     	self.spriteAnimate += 0.1;
-    	//self.attackCooldown += self.atkSpd;
 		if(self.hp <= 0){
 			self.onDeath();
 		}
@@ -189,8 +229,6 @@ Player = function(){
 		Init();
     };
 	self.updatePosition = function() {
-		//console.log(gravity,self.velY,player.y);
-
 		if (keys[38] || keys[32] || keys[87]) { //Space || Up || W
 			if (!self.jumping && self.grounded) {
 				self.jumping = true;

@@ -83,13 +83,15 @@ function update(){
 	//currentMap.drawPattern();
 
 	player.grounded = false;
-	//render obstacles
 
+	//render obstacles
 	for (var i = 0; i < structures.length; i++) {
+		player.testCollision.structure(structures[i]);
 		structures[i].update();
 	};
 
 	player.update();
+
 	// run through the loop again
 	requestAnimationFrame(update);
 };
@@ -98,7 +100,6 @@ function update(){
 window.addEventListener("load", function(){
 	player = Player();
 	structures.push(Ground(width/6,height-10,width/1.5,15));
-	//structures.push(Ground(100,height-100,width/4,15));
 	structures.push(Ground(200,height-200,width/4,15));
 	structures.push(Ground(300,height-300,width/4,15));
 	structures.push(Platform(100,height-100,width/4,15,10,0,.4));
