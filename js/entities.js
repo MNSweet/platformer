@@ -141,7 +141,7 @@ AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
     self.update = function(){
     	parent.update();
     	self.spriteAnimate += 0.1;
-		if(self.hp <= 0){
+		if(self.y > canvas.height + (self.height * 2)){
 			self.onDeath();
 		}
     }
@@ -223,10 +223,9 @@ Player = function(){
     	parent.update();
 	};
     self.onDeath = function(){
-    	parent.onDeath();
-		var timeSurvived = Date.now() - timeWhenGameStarted;
-		console.log("You lost! You survived for " + timeSurvived/1000 + " sec's. Score: " + score);
-		Init();
+    	self.x = width/2;
+		self.y = height-(imgLib.player.height/4)-10;
+		console.log('Dead');
     };
 	self.updatePosition = function() {
 		if (keys[38] || keys[32] || keys[87]) { //Space || Up || W
@@ -234,20 +233,20 @@ Player = function(){
 				self.jumping = true;
 				self.grounded = false;
 				self.velY = -player.moveSpd * 2;
-			}
-		}
+			};
+		};
 		if (keys[39] || keys[68]) {// right || D
 			if (self.velX < self.moveSpd) {
 				self.velX++;
 				self.directionMod = 2;
-			}
-		}
+			};
+		};
 		if (keys[37] || keys[65]) {// left || A
 			if (self.velX > -self.moveSpd) {
 				self.velX--;
 				self.directionMod = 1;
-			}
-		}
+			};
+		};
 
     	// Halt animation
 		if (Math.round(self.velX) == 0) {
