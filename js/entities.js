@@ -1,9 +1,6 @@
 if(debug) console.log('Loaded: js/enities');
 var upgradeList = [];
 var player = {};
-var imgLib = {};
-	imgLib.player		= new Image();
-	imgLib.player.src	= "img/player.png";
 //////////////////////////////////////////////////////
 //
 // Entity Handling
@@ -257,12 +254,10 @@ Player = function(){
 			self.spriteAnimate = 1;
 		};
 
-
 		// Death check
 		if (self.terminate) {
 			self.terminate = false;
 		};
-
 
 	    self.velX 	*= friction;
     	self.velY 	+= gravity;

@@ -15,12 +15,15 @@ Structure = function (x,y,width,height,img,movX,movY,movSpeed) {
 			'y':y,
 			'dir':true
 		},
-		movX: movX,
-		movY: movY,
-		movSpeed: movSpeed
+		movX: (typeof movX === 'undefined') ? 0 : movX,
+		movY: (typeof movX === 'undefined') ? 0 : movY,
+		movSpeed:  (typeof movSpeed === 'undefined') ? 0 : movSpeed
 	};
 
-	self.update = function(){};
+	self.update = function(){
+		self.updatePosition();
+		self.drawPattern();
+	};
 
 	self.updatePosition = function() {
 		if (self.checkX.dir && self.movX > 0) {
@@ -72,20 +75,17 @@ Structure = function (x,y,width,height,img,movX,movY,movSpeed) {
 Ground = function (x,y,width,height) {
 	var self = Structure(x,y,width,height,imgLib.ground);
 
-	self.update = function(){
-		self.drawPattern();
-	};
-
 	return self;
 }
 
 Platform = function (x,y,width,height,movX,movY,movSpeed) {
 	var self = Structure(x,y,width,height,imgLib.platform,movX,movY,movSpeed);
 
-	self.update = function() {
-		self.updatePosition();
-		self.drawPattern();
-	};
+	return self;
+}
+
+Tower = function (x,y,width,height,movX,movY,movSpeed) {
+	var self = Structure(x,y,width,height,imgLib.tower,movX,movY,movSpeed);
 
 	return self;
 }
