@@ -15,25 +15,35 @@ Background = function(){
 	};
 
 	self.updateComponent = function(component) {
-		if(playerBased){
-			//future player related movement: for parallax scrolling
+		if(component.playerBased){
+			if(component.xoffset < -(component.width*2)) {component.x += component.width;};
+			ctx.translate(component.xoffset, component.yoffset);
+			component.xoffset = (((component.x - player.x) + canvas.width/2) - component.width/2) * component.xspeed;
 		} else {
-			//future auto play movement based on component.xspeed & component.yspeed
-		}
+			if(component.xoffset < -component.width) {component.x = component.width/2;};
+			ctx.translate(component.xoffset, component.yoffset);
+			component.xoffset += component.xspeed;
+		};
 	};
 
 	self.drawComponent = function(component) {
+		ctx.save();
+		self.updateComponent(component);
 		if(component.pattern) {
-			ctx.save();
-			var ptrn = ctx.createPattern(component.img, 'repeat');
+			var ptrn		= ctx.createPattern(component.img, 'repeat'),
+				tempWidth	= component.width,
+				tempHeight	= component.height;
 			ctx.fillStyle = ptrn;
+
+			if (component.xspeed != 0) {tempWidth *= 3};
+			if (component.yspeed != 0) {tempHeight *= 3};
+			
 			ctx.fillRect(
-				component.x,
-				component.y,
-				component.width,
-				component.height
+				0,
+				0,
+				tempWidth,
+				tempHeight
 			);
-			ctx.restore();
 		} else {
 			ctx.drawImage(
 				component.img,
@@ -47,10 +57,11 @@ Background = function(){
 				component.height
 			);
 		};
+			ctx.restore();
 	};
 
 	self.addComponent = function(group,pattern,imgSrc,x,y,width,height,sx,sy,swidth,sheight,xspeed,yspeed,playerBased) {
-		if (!("key" in self.groups)) {
+		if (!(group in self.groups)) {
 			self.groups[group] = [];
 		};
 
@@ -70,8 +81,8 @@ Background = function(){
 			'height':height,
 			'xspeed':xspeed,
 			'yspeed':yspeed,
-			'xoffset':0,
-			'yoffset':0,
+			'xoffset':x,
+			'yoffset':y,
 			'playerBased':playerBased
 		});
 	};
@@ -83,7 +94,10 @@ Background = function(){
 var bg = Background();
 
 /// Main Game
-bg.addComponent('main',true,'img/cloud-3.png',0,0,1000,200,0,0,0,0,.4,0,false);
+bg.addComponent('main',true,'img/mountain.png',0,100,1000,400,0,0,0,0,.01,0,true);//furthest from player: Montains
+bg.addComponent('main',true,'img/cloud-1.png',0,0,1500,200,0,0,0,0,-.4,0,false);
+bg.addComponent('main',true,'img/hills.png',0,300,1000,100,0,0,0,0,.05,0,true);//Mid way to player: Hills
+bg.addComponent('main',true,'img/bush.png',0,350,1000,50,0,0,0,0,1,0,true);//Closest to player: Bushes
 
 
 

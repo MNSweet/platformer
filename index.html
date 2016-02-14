@@ -44,7 +44,6 @@ function update(){
 	//reset screen
 	ctx.clearRect(0,0,width,height);
 	bg.draw('main');
-	//background.drawPattern();
 
 	player.grounded = false;
 
@@ -63,8 +62,12 @@ function update(){
 
 window.addEventListener("load", function(){
 	player = Player();
-	structures.push(Ground(0,height-10,width*2,15));
-	structures.push(Tower(0,0,100,height-10,10));
+	structures.push(Ground(0,height-10,width*10,15));
+	structures.push(Platform(400,300,200,10,-20,0,1));
+	structures.push(Platform(800,300,200,10,-20,0,1));
+	structures.push(Platform(1200,300,200,10,-20,0,1));
+	structures.push(Platform(1600,300,200,10,-20,0,1));
+	structures.push(EndCap());
 	update();
 });
 	

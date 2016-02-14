@@ -72,9 +72,9 @@ Entity = function(type,id,x,y,width,height,img){
 				} else {
 					self.velX = 0;
 					self.jumping = false;
-					if (vX > 0) {//entity to the left of structure
+					if (vX > 0) {//entity to the right of structure
 						self.x += oX;
-					} else {//entity to the right of structure
+					} else {//entity to the left of structure
 						self.x -= oX;
 					};
 				};
@@ -167,14 +167,13 @@ AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
 		if(player.mapEdge.bottom ){ 
 			renderY = self.y-self.height/2 + height - currentMap.image.height*2;
 		};*/
-
 		ctx.drawImage(
 			self.img, //image
 			walkingMod * frameWidth, //start crop x 42
 			self.directionMod * frameHeight, //start crop y 48
 			self.img.width/4, //crop width
 			self.img.height/4,//crop height
-			renderX, //render x
+			((self.x - player.x) + canvas.width/2)  - self.width/2, //render x
 			renderY,//render y
 			self.width, //render width
 			self.height //render height

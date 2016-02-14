@@ -53,7 +53,7 @@ Structure = function (x,y,width,height,img,movX,movY,movSpeed) {
 	self.draw = function() {
 		ctx.drawImage(
 			self.img,
-			self.x,
+			((self.x - player.x) + canvas.width/2)  - player.width/2,
 			self.y,
 			self.width,
 			self.height
@@ -62,7 +62,7 @@ Structure = function (x,y,width,height,img,movX,movY,movSpeed) {
 
 	self.drawPattern = function() {
 		ctx.save();
-		ctx.translate(self.x, self.y);
+		ctx.translate(((self.x - player.x) + canvas.width/2)  - player.width/2, self.y);
 		ctx.fillStyle = ctx.createPattern(self.img, 'repeat');
 	    ctx.fillRect(0, 0, self.width, self.height);
 		ctx.restore();
@@ -86,6 +86,21 @@ Platform = function (x,y,width,height,movX,movY,movSpeed) {
 
 Tower = function (x,y,width,height,movX,movY,movSpeed) {
 	var self = Structure(x,y,width,height,imgLib.tower,movX,movY,movSpeed);
+
+	return self;
+}
+
+EndCap = function () {
+	var self			= Structure(-500,0,600,canvas.height,imgLib.tower,0,0,0);
+		self.xoffset	= 0;
+	var parent	= {
+			'update': self.update
+		};
+
+	self.update = function(){
+		if(self.x < player.x - canvas.width - self.width) {self.x = player.x - canvas.width - self.width;};
+		parent.update();
+	};
 
 	return self;
 }
