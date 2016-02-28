@@ -53,7 +53,7 @@ Structure = function (x,y,width,height,img,movX,movY,movSpeed) {
 	self.draw = function() {
 		ctx.drawImage(
 			self.img,
-			((self.x - player.x) + canvas.width/2)  - player.width/2,
+			((self.x - player.x) + canvas.width/2),
 			self.y,
 			self.width,
 			self.height
@@ -62,7 +62,7 @@ Structure = function (x,y,width,height,img,movX,movY,movSpeed) {
 
 	self.drawPattern = function() {
 		ctx.save();
-		ctx.translate(((self.x - player.x) + canvas.width/2)  - player.width/2, self.y);
+		ctx.translate(((self.x - player.x) + canvas.width/2), self.y);
 		ctx.fillStyle = ctx.createPattern(self.img, 'repeat');
 	    ctx.fillRect(0, 0, self.width, self.height);
 		ctx.restore();

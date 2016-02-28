@@ -7,14 +7,16 @@ var player = {};
 //
 //////////////////////////////////////////////////////
 Entity = function(type,id,x,y,width,height,img){
+	var d = new Date();
 	var self = {
-		id:id,
+		id:(typeof id !== "undefined") ? d.getTime() : id,
 		type:type,
 		x:x,
 		y:y,
 		width:width,
 		height:height,
-		img:img
+		img:img,
+		colliding:false
 	};
 
 	self.update = function(){
@@ -45,7 +47,7 @@ Entity = function(type,id,x,y,width,height,img){
 		},
 		structure: function(structure){
 			// get the vectors to check against
-			var vX = (self.x + (self.width / 2)) - (structure.x + (structure.width / 2)),
+			var vX = self.x - (structure.x + (structure.width / 2)),
 				vY = (self.y + (self.height / 2)) - (structure.y + (structure.height / 2)),
 				// add the half widths and half heights of the objects
 				halfWidths = (self.width / 2) + (structure.width / 2),
@@ -85,19 +87,8 @@ Entity = function(type,id,x,y,width,height,img){
 	self.draw = function(){
 		ctx.save();
 
-		var renderX = ((self.x - player.x) + WIDTH/2)  - self.width/2;
-		var renderY = ((self.y - player.y) + HEIGHT/2) - self.height/2;
-
-		if(player.mapEdge.left ){ 
-			renderX = self.x-self.width/2; };
-		if(player.mapEdge.top){ 
-			renderY = self.y-self.height/2; };
-
-		if(player.mapEdge.right){ 
-			renderX = self.x-self.width/2 + WIDTH - currentMap.image.width*2;
-			 };
-		if(player.mapEdge.bottom ){ 
-			renderY = self.y-self.height/2 + HEIGHT - currentMap.image.height*2; };
+		var renderX = ((self.x - player.x) + canvas.width/2)  - self.width/2;
+		var renderY = ((self.y - player.y) + canvas.height/2) - self.height/2;
 			
 		ctx.drawImage(
 			self.img, //image
@@ -112,61 +103,45 @@ Entity = function(type,id,x,y,width,height,img){
 		)
 		ctx.restore();
 	};
-   
+
 	return self;
 };
 
 AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
 	var self 				= Entity(type,id,x,y,width,height,img);
-	    self.hp 			= hp;
-	    self.hpMax 			= hp;
+		self.hp 			= hp;
+		self.hpMax 			= hp;
 		self.terminate		= false;
 		self.spriteAnimate	= 0;
 		self.directionMod	= 0;
 		self.healthbar 		= {
-			x: self.x,//((self.x - player.x) + WIDTH/2),
-			y: self.y,//((self.y - player.y) + HEIGHT/2) - self.height - 20,
+			x: self.x,
+			y: self.y,
 			width: self.width,
 			height: 10,
 			fill: self.width * self.hp / self.hpMax,
 			fillColor: 'red'
 		};
-    var parent = {
-    	update: self.update
-    };
+	var parent = {
+		update: self.update
+	};
 
-    self.update = function(){
-    	parent.update();
-    	self.spriteAnimate += 0.1;
+	self.update = function(){
+		parent.update();
+		self.spriteAnimate += 0.1;
 		if(self.y > canvas.height + (self.height * 2)){
 			self.onDeath();
 		}
-    }
+	}
 	self.onDeath = function() {
-    };
+	};
 	self.draw = function(x,y){
 		ctx.save();
 
 		var frameWidth = self.img.width/4;
 		var frameHeight = self.img.height/4;
-
 		var walkingMod = Math.floor(self.spriteAnimate) % 4;
-		var renderX = self.x;
-		var renderY = self.y;
-/*		var renderX = ((self.x - player.x) + width/2)  - self.width/2;
-		var renderY = ((self.y - player.y) + height/2) - self.height/2;
 
-		if(player.mapEdge.left ){ 
-			renderX = self.x-self.width/2; };
-		if(player.mapEdge.top){ 
-			renderY = self.y-self.height/2; };
-
-		if(player.mapEdge.right){ 
-			renderX = self.x-self.width/2 + width - currentMap.image.width*2;
-		};
-		if(player.mapEdge.bottom ){ 
-			renderY = self.y-self.height/2 + height - currentMap.image.height*2;
-		};*/
 		ctx.drawImage(
 			self.img, //image
 			walkingMod * frameWidth, //start crop x 42
@@ -174,7 +149,7 @@ AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
 			self.img.width/4, //crop width
 			self.img.height/4,//crop height
 			((self.x - player.x) + canvas.width/2)  - self.width/2, //render x
-			renderY,//render y
+			self.y,//render y
 			self.width, //render width
 			self.height //render height
 		)
@@ -188,8 +163,8 @@ Player = function(){
 	var self = AdvEntity(
 			'player',
 			'users',
-			width/2,
-			height-(imgLib.player.height/4)-10,
+			canvas.width/2,
+			canvas.height-(imgLib.player.height/4)-10,
 			imgLib.player.width/4,
 			imgLib.player.height/4,
 			imgLib.player,
@@ -207,22 +182,22 @@ Player = function(){
 			left:false,
 			right:false
 		};
-    var parent = {
-    		update: self.update,
-    		onDeath: self.onDeath
-    	};
+	var parent = {
+			update: self.update,
+			onDeath: self.onDeath
+		};
 
-    self.update = function(){
+	self.update = function(){
 		if(player.grounded){
 			player.velY = 0;
 		}
-    	parent.update();
+		parent.update();
 	};
-    self.onDeath = function(){
-    	self.x = width/2;
+	self.onDeath = function(){
+		self.x = width/2;
 		self.y = height-(imgLib.player.height/4)-10;
 		console.log('Dead');
-    };
+	};
 	self.updatePosition = function() {
 		if (keys[38] || keys[32] || keys[87]) { //Space || Up || W
 			if (!self.jumping && self.grounded) {
@@ -244,7 +219,7 @@ Player = function(){
 			};
 		};
 
-    	// Halt animation
+		// Halt animation
 		if (Math.round(self.velX) == 0) {
 			self.spriteAnimate = 0;
 			self.directionMod = 0;
@@ -258,8 +233,8 @@ Player = function(){
 			self.terminate = false;
 		};
 
-	    self.velX 	*= friction;
-    	self.velY 	+= gravity;
+		self.velX 	*= canvas.friction;
+		self.velY 	+= canvas.gravity;
 		self.x 		+= self.velX;
 		player.y 	+= player.velY;
 
@@ -305,31 +280,97 @@ Player = function(){
 	return self;
 }
 
+Sign = function (id,x,y,width,height,img,mesid,message) {
+	var self = Entity('Sign',id,500,canvas.height-46,32,36,imgLib.sign);
+	
+	self.notice = message;
+	self.padding = 5;
+	self.text = {
+		padding: 5,
+		border: 5,
+		size: 20,
+		font: 'Tahoma'
+	};
+
+	self.message = function() {
+		ctx.save();
+		ctx.font	= self.text.size + "px " + self.text.font;
+		var offset	= 50;
+		var text	= ctx.measureText(self.notice);
+		var renderX = (((self.x - player.x) + canvas.width/2) - self.width/2) - text.width/2;
+
+		ctx.fillStyle = "#b19775";
+		ctx.fillRect(
+			renderX - self.padding - self.text.border,
+			offset - self.text.size - self.text.padding - self.text.border,
+			text.width + self.padding*2 + self.text.border*2,
+			self.text.size + self.text.padding*2 + self.text.border*2
+		);
+
+		ctx.fillStyle = "#eae4dc";
+		ctx.fillRect(
+			renderX - self.padding,
+			offset - self.text.size - self.padding,
+			text.width + self.padding*2,
+			self.text.size + self.padding*2);
+
+		ctx.fillStyle = "#000000";
+		ctx.fillText(self.notice,renderX,offset);
+		ctx.restore();
+	}
+
+	self.update = function(){
+		if(self.colliding) { self.message() };
+		self.draw();
+	}
+
+	self.draw = function(){
+		ctx.save();
+
+		var renderX = ((self.x - player.x) + canvas.width/2) - self.width/2;
+			
+		ctx.drawImage(
+			self.img, //image
+			0, //start crop x
+			0, //start crop y
+			self.img.width, //crop width
+			self.img.height,//crop height
+			renderX, //render x
+			self.y,//render y
+			self.width, //render width
+			self.height //render height
+		)
+		ctx.restore();
+	};
+
+	return self;
+}
+
 Enemy = function(id,x,y,width,height,img,hp,atkSpd){
 	var self = AdvEntity('enemy',id,x,y,width,height,img,hp,atkSpd);
-    var parent = {
-    		update: self.update,
-    		onDeath: self.onDeath,
-    		draw: self.draw
-    	};
-    self.healthbar = {x:self.x,y:self.y}
+	var parent = {
+			update: self.update,
+			onDeath: self.onDeath,
+			draw: self.draw
+		};
+	self.healthbar = {x:self.x,y:self.y}
 
-    self.update = function(){
-    	parent.update();
-    	self.updateAim();
+	self.update = function(){
+		parent.update();
+		self.updateAim();
 		if(self.terminate){
 			delete enemyList[self.id];
 		}
-    };
-    self.onDeath = function(){
-    	parent.onDeath();
-    	self.terminate = true;
-    };
+	};
+	self.onDeath = function(){
+		parent.onDeath();
+		self.terminate = true;
+	};
 	self.updateAim = function() {
 		var diffX = player.x - self.x;
 		var diffY = player.y - self.y;
 		self.aimAngle = Math.atan2(diffY,diffX) / Math.PI * 180;
-    };
+	};
 	self.updatePosition = function() {
 		var diffX = player.x - self.x;
 		var diffY = player.y - self.y;
@@ -383,10 +424,10 @@ Upgrade = function(id,x,y,width,height,category,img){
 	var self = Entity('upgrade',id,x,y,width,height,img);
 	self.category = category;
 
-    var parent_update = self.update;
+	var parent_update = self.update;
 
-    self.update = function(){
-    	parent_update();
+	self.update = function(){
+		parent_update();
 		   
 		var isColliding = player.testCollision(self);
 		if(isColliding){
@@ -398,6 +439,6 @@ Upgrade = function(id,x,y,width,height,category,img){
 			}
 			delete upgradeList[self.id];
 		}
-    }
+	}
 	upgradeList[id] = self;
 };

@@ -12,5 +12,7 @@ var imgLib = {};
 	imgLib.platform.src	= "img/platform.png";
 	imgLib.tower		= new Image();
 	imgLib.tower.src	= "img/tower.png";
+	imgLib.sign			= new Image();
+	imgLib.sign.src		= "img/sign.png";
 
 // Displays

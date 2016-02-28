@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-		<title>My fancy game</title>
+		<title>Platformer an Infinite Runner</title>
 </head>
 <body style="padding:10px 0 0; background-color:#000;">
 
@@ -16,43 +16,57 @@
 	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	window.requestAnimationFrame = requestAnimationFrame;
 })();
+
+
 var canvas = document.getElementById("canvas"),
 	ctx = canvas.getContext("2d"),
-	width = 1000,
-	height = 400,
 	player = {},
 	keys = [],
-	gravity = 0.3,
-	friction = 0.8,
-	structures = [];
+	structures = [],
+	entities = [];
 
-var background = Background('feild','img/map.jpg',800,500);
+function gameInit(){
+	canvas.width = 1000;
+	canvas.height = 400;
+	canvas.gravity = 0.3;
+	canvas.friction = 0.8;
+	canvas.endCap = EndCap();
 
+	document.body.addEventListener("keydown", function(e) {
+		keys[e.keyCode] = true;
+	});
+	 
+	document.body.addEventListener("keyup", function(e) {
+		keys[e.keyCode] = false;
+	});
 
-canvas.width = width;
-canvas.height = height;
+	player = Player();
+	tutorial();
+};
 
-document.body.addEventListener("keydown", function(e) {
-	keys[e.keyCode] = true;
-});
- 
-document.body.addEventListener("keyup", function(e) {
-	keys[e.keyCode] = false;
-});
+function tutorial(){	
+	structures.push(Ground(0,canvas.height-10,canvas.width,15));
+	entities.push(Sign(630,300,150,10,70,0,1,'Welcome to Platformer'));
+};
 
 function update(){
 	//reset screen
-	ctx.clearRect(0,0,width,height);
+	ctx.clearRect(0,0,canvas.width,canvas.height);
 	bg.draw('main');
 
 	player.grounded = false;
 
 	//render obstacles
+	for (var i = 0; i < entities.length; i++) {
+		entities[i].colliding = player.testCollision.entity(entities[i]);
+		entities[i].update();
+	};
 	for (var i = 0; i < structures.length; i++) {
 		player.testCollision.structure(structures[i]);
 		structures[i].update();
 	};
-
+	player.testCollision.structure(canvas.endCap);
+	canvas.endCap.update();
 	player.update();
 
 	// run through the loop again
@@ -61,13 +75,7 @@ function update(){
 
 
 window.addEventListener("load", function(){
-	player = Player();
-	structures.push(Ground(0,height-10,width*10,15));
-	structures.push(Platform(400,300,200,10,-20,0,1));
-	structures.push(Platform(800,300,200,10,-20,0,1));
-	structures.push(Platform(1200,300,200,10,-20,0,1));
-	structures.push(Platform(1600,300,200,10,-20,0,1));
-	structures.push(EndCap());
+	gameInit();
 	update();
 });
 	
