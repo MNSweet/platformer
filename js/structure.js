@@ -91,7 +91,7 @@ Tower = function (x,y,width,height,movX,movY,movSpeed) {
 }
 
 EndCap = function () {
-	var self			= Structure(-500,0,600,canvas.height,imgLib.tower,0,0,0);
+	var self			= Structure(-canvas.width/2+10,0,canvas.width/2,canvas.height,imgLib.tower,0,0,0);
 		self.xoffset	= 0;
 	var parent	= {
 			'update': self.update
@@ -101,6 +101,10 @@ EndCap = function () {
 		if(self.x < player.x - canvas.width - self.width) {self.x = player.x - canvas.width - self.width;};
 		parent.update();
 	};
+
+	self.reset = function(){
+		self.x = -canvas.width/2+10;
+	}
 
 	return self;
 }

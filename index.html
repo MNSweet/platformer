@@ -44,9 +44,33 @@ function gameInit(){
 	tutorial();
 };
 
-function tutorial(){	
-	structures.push(Ground(0,canvas.height-10,canvas.width,15));
-	entities.push(Sign(630,300,150,10,70,0,1,'Welcome to Platformer'));
+function tutorial(){
+	var currentX = 0;
+	structures.push(Ground(currentX,canvas.height-10,canvas.width,15));
+	entities.push(Sign('welcome',"Welcome to Platformer Tutorial \n Movement: \n Left & Right: A & D or Arrow Keys \n Up: W, Spacebar or Up Arrow",500));
+	entities.push(Sign('pit',"This is a hole in the ground. Don't go down there. Try jumping up on that platform.",980));
+	currentX += canvas.width+100;
+	structures.push(Platform(currentX,canvas.height-70,150,15));
+	currentX += 250;
+	structures.push(Ground(currentX,canvas.height-10,250,15));
+	currentX += 20;
+	entities.push(Sign('wall',"Great you made it. Now try jumping over this wall.",currentX));
+	currentX += 100;
+	structures.push(Tower(currentX,canvas.height-110,15,100));
+	currentX += 100;
+	entities.push(Sign('moving',"Heads up, platforms and walls sometimes move.",currentX));
+	currentX += 200;
+	structures.push(Platform(currentX,canvas.height-70,150,15,100,0,1));
+	currentX += 400;
+	structures.push(Ground(currentX,canvas.height-10,265,15));
+	currentX += 100;
+	structures.push(Tower(currentX,canvas.height-110,30,100,100,0,2));
+	currentX += 140;
+	entities.push(Sign('up',"What are you doing down here you need to head up.",currentX));
+	currentX += 200;
+	structures.push(Platform(currentX,canvas.height-150,200,15,100,0,1));
+	currentX += 300;
+	structures.push(Platform(currentX,canvas.height-200,200,15,100,0,1.5));
 };
 
 function update(){
@@ -55,6 +79,7 @@ function update(){
 	bg.draw('main');
 
 	player.grounded = false;
+	player.reading = false;
 
 	//render obstacles
 	for (var i = 0; i < entities.length; i++) {
@@ -69,6 +94,23 @@ function update(){
 	canvas.endCap.update();
 	player.update();
 
+	if(debug) {
+		var debuglog = [
+		"X: " + Math.round(player.x),
+		"Y: " + Math.round(player.y),
+		"Moving: " + ((Math.round(player.velX) != 0) || (Math.round(player.velY) != 0)),
+		"Jumping: " + player.jumping,
+		"Grounded: " + player.grounded,
+		"Reading: " + player.reading,
+		"Structures: " + structures.length,
+		"Entities: " + entities.length
+
+		]
+		for (var i = 0; i < debuglog.length; i++) {
+			ctx.fillText(debuglog[i],10,20+12*i);
+		};
+		
+	}
 	// run through the loop again
 	requestAnimationFrame(update);
 };

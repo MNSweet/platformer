@@ -7,9 +7,8 @@ var player = {};
 //
 //////////////////////////////////////////////////////
 Entity = function(type,id,x,y,width,height,img){
-	var d = new Date();
 	var self = {
-		id:(typeof id !== "undefined") ? d.getTime() : id,
+		id:(typeof id == "undefined") ? Math.floor((Math.random() * 1000000) + 1) : id,
 		type:type,
 		x:x,
 		y:y,
@@ -109,19 +108,9 @@ Entity = function(type,id,x,y,width,height,img){
 
 AdvEntity = function(type,id,x,y,width,height,img,hp,atkSpd){
 	var self 				= Entity(type,id,x,y,width,height,img);
-		self.hp 			= hp;
-		self.hpMax 			= hp;
 		self.terminate		= false;
 		self.spriteAnimate	= 0;
 		self.directionMod	= 0;
-		self.healthbar 		= {
-			x: self.x,
-			y: self.y,
-			width: self.width,
-			height: 10,
-			fill: self.width * self.hp / self.hpMax,
-			fillColor: 'red'
-		};
 	var parent = {
 		update: self.update
 	};
@@ -176,12 +165,7 @@ Player = function(){
 		self.velY = 0;
 		self.jumping = false;
 		self.grounded = false;
-		self.mapEdge = {
-			top:false,
-			bottom:false,
-			left:false,
-			right:false
-		};
+		self.reading = false;
 	var parent = {
 			update: self.update,
 			onDeath: self.onDeath
@@ -194,8 +178,9 @@ Player = function(){
 		parent.update();
 	};
 	self.onDeath = function(){
-		self.x = width/2;
-		self.y = height-(imgLib.player.height/4)-10;
+		self.x = canvas.width/2;
+		self.y = canvas.height-(imgLib.player.height/4)-10;
+		canvas.endCap.reset();
 		console.log('Dead');
 	};
 	self.updatePosition = function() {
@@ -227,6 +212,9 @@ Player = function(){
 		if (self.jumping) {
 			self.spriteAnimate = 1;
 		};
+		if (self.reading) {
+			self.directionMod = 3;
+		};
 
 		// Death check
 		if (self.terminate) {
@@ -238,50 +226,13 @@ Player = function(){
 		self.x 		+= self.velX;
 		player.y 	+= player.velY;
 
-
-		/*if(self.pressingRight)
-			self.x += self.moveSpd;
-		if(self.pressingLeft)
-			self.x -= self.moveSpd;  
-		if(self.pressingDown)
-			self.y += self.moveSpd;  
-		if(self.pressingUp)
-			self.y -= self.moveSpd;  
-
-		//ispositionvalid
-		if(self.x < self.width/2)
-			self.x = self.width/2;
-		if(self.x > currentMap.width - self.width/2)
-			self.x = currentMap.width - self.width/2;
-		if(self.y < self.height/2)
-			self.y = self.height/2;
-		if(self.y > currentMap.height - self.height/2)
-			self.y = currentMap.height - self.height/2;
-
-		player.mapEdge.top 		= false;
-		player.mapEdge.bottom 	= false;
-		player.mapEdge.left 	= false;
-		player.mapEdge.right 	= false;
-		if (width/2 - player.x > 0) {
-			player.mapEdge.left = true;
-		};
-		if (width/2 - currentMap.image.width*2 + player.x > 0 ) {
-			player.mapEdge.right = true;
-		};
-		if (height/2 - player.y > 0) {
-			player.mapEdge.top = true;
-		}
-		if (height/2 - currentMap.image.height*2 + player.y > 0) {
-			player.mapEdge.bottom = true;
-
-		}*/
 	}
 
 	return self;
 }
 
-Sign = function (id,x,y,width,height,img,mesid,message) {
-	var self = Entity('Sign',id,500,canvas.height-46,32,36,imgLib.sign);
+Sign = function (id,message,x,size) {
+	var self = Entity('Sign',id,x,canvas.height-46,32,36,imgLib.sign);
 	
 	self.notice = message;
 	self.padding = 5;
@@ -289,38 +240,76 @@ Sign = function (id,x,y,width,height,img,mesid,message) {
 		padding: 5,
 		border: 5,
 		size: 20,
-		font: 'Tahoma'
+		font: 'Tahoma',
+		width: 400
 	};
 
 	self.message = function() {
 		ctx.save();
+
 		ctx.font	= self.text.size + "px " + self.text.font;
 		var offset	= 50;
 		var text	= ctx.measureText(self.notice);
-		var renderX = (((self.x - player.x) + canvas.width/2) - self.width/2) - text.width/2;
+		var width	= text.width < self.text.width ? text.width : self.text.width;
+		var realwidth = 0;
+
+		var words	= self.notice.split(' ');
+		var lines	= [];
+		var line	= '';
+
+		for(var n = 0; n < words.length; n++) {
+			if(words[n] == '\n') {
+				lines.push(line);
+				n++;
+				line = words[n] + ' ';
+				continue;
+			}
+
+			var testLine	= line + words[n] + ' ';
+			var metrics		= ctx.measureText(testLine.substring(0, testLine.length - 1));
+			var testWidth	= metrics.width;
+			if (testWidth > self.text.width && n > 0) {
+				lines.push(line);
+				line = words[n] + ' ';
+			}
+			else {
+				realwidth = testWidth > realwidth ? testWidth : realwidth;
+				line = testLine;
+			}
+		}
+		lines.push(line);
+
+		var renderX = (((self.x - player.x) + canvas.width/2) - self.width/2) - realwidth/2;
 
 		ctx.fillStyle = "#b19775";
 		ctx.fillRect(
 			renderX - self.padding - self.text.border,
 			offset - self.text.size - self.text.padding - self.text.border,
-			text.width + self.padding*2 + self.text.border*2,
-			self.text.size + self.text.padding*2 + self.text.border*2
+			realwidth + self.padding*2 + self.text.border*2,
+			(self.text.size + 5) * lines.length + self.text.padding*2 + self.text.border*2
 		);
 
 		ctx.fillStyle = "#eae4dc";
 		ctx.fillRect(
 			renderX - self.padding,
 			offset - self.text.size - self.padding,
-			text.width + self.padding*2,
-			self.text.size + self.padding*2);
+			realwidth + self.padding*2,
+			(self.text.size + 5) * lines.length + self.padding*2);
 
 		ctx.fillStyle = "#000000";
-		ctx.fillText(self.notice,renderX,offset);
+		for(var n = 0; n < lines.length; n++) {
+			ctx.fillText(lines[n],renderX,offset + (self.text.size + 5) * n);
+		}
 		ctx.restore();
 	}
 
 	self.update = function(){
-		if(self.colliding) { self.message() };
+		if(self.colliding && Math.abs(Math.round(player.velX)) < player.moveSpd - 0.5) {
+			self.message();
+			if(Math.abs(Math.round(player.velX)) < 0.5 && self.id != 'welcome') {
+				player.reading = true;
+			}
+		}
 		self.draw();
 	}
 
